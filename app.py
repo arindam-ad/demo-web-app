@@ -17,174 +17,43 @@ app = Flask(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Static demo data. This keeps the app client-demo friendly without a database.
+# Empty MVP data. Real records should come from the FastAPI/PostgreSQL backend.
 # ---------------------------------------------------------------------------
-HOSPITALS = ["Hospital A", "Hospital B", "Hospital C"]
+HOSPITALS: list[str] = []
 DEFAULT_START_DATE = date(2026, 5, 1)
 DEFAULT_END_DATE = date(2026, 5, 31)
 
 HOSPITAL_METRICS = {
     "All Hospitals": {
-        "revenue": 12.62,
-        "patients": 4562,
-        "occupancy": 78.6,
-        "emergency": 186,
-        "staff": 1248,
-        "claims": 234,
-        "claims_value": 2.45,
-        "ratio": 18,
-    },
-    "Hospital A": {
-        "revenue": 5.21,
-        "patients": 1824,
-        "occupancy": 82.2,
-        "emergency": 74,
-        "staff": 512,
-        "claims": 93,
-        "claims_value": 0.98,
-        "ratio": 17,
-    },
-    "Hospital B": {
-        "revenue": 4.35,
-        "patients": 1575,
-        "occupancy": 76.4,
-        "emergency": 62,
-        "staff": 421,
-        "claims": 81,
-        "claims_value": 0.86,
-        "ratio": 18,
-    },
-    "Hospital C": {
-        "revenue": 3.06,
-        "patients": 1163,
-        "occupancy": 73.8,
-        "emergency": 50,
-        "staff": 315,
-        "claims": 60,
-        "claims_value": 0.61,
-        "ratio": 19,
+        "revenue": 0.0,
+        "patients": 0,
+        "occupancy": 0.0,
+        "emergency": 0,
+        "staff": 0,
+        "claims": 0,
+        "claims_value": 0.0,
+        "ratio": 0,
     },
 }
 
-hospital_revenue_df = [
-    {"Hospital": "Hospital A", "Revenue": 5.21},
-    {"Hospital": "Hospital B", "Revenue": 4.35},
-    {"Hospital": "Hospital C", "Revenue": 3.06},
-]
+hospital_revenue_df: list[dict] = []
 
-department_revenue_df = [
-    {"Department": "Radiology", "Revenue": 3.45},
-    {"Department": "Pathology", "Revenue": 2.78},
-    {"Department": "Surgery", "Revenue": 2.35},
-    {"Department": "Pharmacy", "Revenue": 1.68},
-    {"Department": "ICU", "Revenue": 1.25},
-    {"Department": "Cardiology", "Revenue": 1.11},
-]
+department_revenue_df: list[dict] = []
 
-monthly_df = [
-    {"Month": "Jun", "Revenue": 6.35, "Expenses": 3.82},
-    {"Month": "Jul", "Revenue": 7.18, "Expenses": 4.12},
-    {"Month": "Aug", "Revenue": 8.06, "Expenses": 4.48},
-    {"Month": "Sep", "Revenue": 8.92, "Expenses": 4.79},
-    {"Month": "Oct", "Revenue": 9.34, "Expenses": 5.03},
-    {"Month": "Nov", "Revenue": 9.82, "Expenses": 5.22},
-    {"Month": "Dec", "Revenue": 10.25, "Expenses": 5.47},
-    {"Month": "Jan", "Revenue": 10.91, "Expenses": 5.86},
-    {"Month": "Feb", "Revenue": 11.38, "Expenses": 6.12},
-    {"Month": "Mar", "Revenue": 11.86, "Expenses": 6.52},
-    {"Month": "Apr", "Revenue": 12.21, "Expenses": 7.06},
-    {"Month": "May", "Revenue": 12.62, "Expenses": 7.81},
-]
+monthly_df: list[dict] = []
 
-staff_df = [
-    {"Role": "Doctors", "On Duty": 342, "Total": 415},
-    {"Role": "Nurses", "On Duty": 512, "Total": 620},
-    {"Role": "Technicians", "On Duty": 128, "Total": 160},
-    {"Role": "Admin Staff", "On Duty": 63, "Total": 80},
-]
+staff_df: list[dict] = []
 
-alerts_df = [
-    {
-        "Hospital": "Hospital A",
-        "Title": "Low on oxygen cylinders",
-        "Detail": "Stock remaining: 12 units",
-        "Severity": "Critical",
-        "Time": "5 min ago",
-    },
-    {
-        "Hospital": "Hospital B",
-        "Title": "ICU occupancy high",
-        "Detail": "ICU occupancy: 95%",
-        "Severity": "High",
-        "Time": "12 min ago",
-    },
-    {
-        "Hospital": "Hospital C",
-        "Title": "MRI machine maintenance scheduled",
-        "Detail": "Scheduled maintenance at 2:00 PM",
-        "Severity": "Warning",
-        "Time": "25 min ago",
-    },
-    {
-        "Hospital": "Hospital A",
-        "Title": "High emergency admissions",
-        "Detail": "Admissions increased by 32%",
-        "Severity": "High",
-        "Time": "35 min ago",
-    },
-]
+alerts_df: list[dict] = []
 
-inventory_df = [
-    {
-        "Resource": "Oxygen Cylinders",
-        "Hospital": "Hospital A",
-        "Status": "Critical",
-        "Detail": "12 units remaining",
-    },
-    {
-        "Resource": "Medicine: Inj. Meropenem",
-        "Hospital": "Hospital B",
-        "Status": "Low",
-        "Detail": "8 units remaining",
-    },
-    {
-        "Resource": "ICU Beds",
-        "Hospital": "Hospital C",
-        "Status": "Critical",
-        "Detail": "2 beds available",
-    },
-    {
-        "Resource": "Blood Units",
-        "Hospital": "All Hospitals",
-        "Status": "Low",
-        "Detail": "A+ve: 15 | O-ve: 10",
-    },
-]
+inventory_df: list[dict] = []
 
 BOTTOM_KPIS = {
     "All Hospitals": {
-        "queue": (46, {"Hospital A": 18, "Hospital B": 16, "Hospital C": 12}),
-        "ambulance": (24, {"On Route": 8, "Available": 12, "At Hospital": 4}),
-        "admissions": (286, {"OPD": 198, "IPD": 68, "Emergency": 20}),
-        "discharges": (142, {"Hospital A": 48, "Hospital B": 57, "Hospital C": 37}),
-    },
-    "Hospital A": {
-        "queue": (18, {"High": 8, "Medium": 6, "Low": 4}),
-        "ambulance": (9, {"On Route": 3, "Available": 4, "At Hospital": 2}),
-        "admissions": (112, {"OPD": 78, "IPD": 26, "Emergency": 8}),
-        "discharges": (48, {"OPD": 21, "IPD": 19, "Emergency": 8}),
-    },
-    "Hospital B": {
-        "queue": (16, {"High": 6, "Medium": 7, "Low": 3}),
-        "ambulance": (8, {"On Route": 2, "Available": 5, "At Hospital": 1}),
-        "admissions": (96, {"OPD": 65, "IPD": 24, "Emergency": 7}),
-        "discharges": (57, {"OPD": 26, "IPD": 24, "Emergency": 7}),
-    },
-    "Hospital C": {
-        "queue": (12, {"High": 4, "Medium": 5, "Low": 3}),
-        "ambulance": (7, {"On Route": 3, "Available": 3, "At Hospital": 1}),
-        "admissions": (78, {"OPD": 55, "IPD": 18, "Emergency": 5}),
-        "discharges": (37, {"OPD": 18, "IPD": 14, "Emergency": 5}),
+        "queue": (0, {}),
+        "ambulance": (0, {}),
+        "admissions": (0, {}),
+        "discharges": (0, {}),
     },
 }
 
@@ -386,6 +255,12 @@ MODULE_DEMOS = {
         ],
     },
 }
+
+for module in MODULE_DEMOS.values():
+    module["categories"] = []
+    module["values"] = []
+    module["metrics"] = []
+    module["rows"] = []
 
 
 TEMPLATE = """
@@ -1047,7 +922,7 @@ TEMPLATE = """
                 <div class="item-title">System Status</div>
                 <div class="item-detail"><span class="status-pill">All systems operational</span></div>
             </div>
-            <div class="item-detail" style="margin:18px 4px 0;">2026 UHMS. Demo data only.</div>
+            <div class="item-detail" style="margin:18px 4px 0;">2026 UHMS. No sample records loaded.</div>
         </aside>
 
         <main class="content">
@@ -1118,7 +993,7 @@ TEMPLATE = """
                         <h2 class="panel-title">Doctor to Patient Ratio</h2>
                         <div class="panel-subtitle">Current ratio: 1:{{ metrics.ratio }} | Recommended: 1:20</div>
                         <div id="doctorRatio" class="chart"></div>
-                        <div style="text-align:center;"><span class="status-pill">Good staffing level</span></div>
+                        <div style="text-align:center;"><span class="status-pill">No staffing ratio loaded</span></div>
                     </article>
 
                     <article class="panel">
@@ -1135,6 +1010,8 @@ TEMPLATE = """
                                 <div class="item-detail">{{ alert.Time }}</div>
                             </div>
                         </div>
+                        {% else %}
+                        <div class="item-detail">No operational alerts available.</div>
                         {% endfor %}
                     </article>
 
@@ -1157,6 +1034,8 @@ TEMPLATE = """
                             <div class="bar-track"><div class="bar-fill" style="width:{{ row.Percent }}%;"></div></div>
                             <div class="progress-value">{{ row.OnDuty }} / {{ row.Total }}</div>
                         </div>
+                        {% else %}
+                        <div class="item-detail">No staff availability records available.</div>
                         {% endfor %}
                     </article>
 
@@ -1171,6 +1050,8 @@ TEMPLATE = """
                             </div>
                             <span class="badge {{ item.Status|lower }}">{{ item.Status }}</span>
                         </div>
+                        {% else %}
+                        <div class="item-detail">No inventory or resource alerts available.</div>
                         {% endfor %}
                     </article>
                 </section>
@@ -1208,7 +1089,7 @@ TEMPLATE = """
                     </article>
                     <article class="panel chart-panel">
                         <h2 class="panel-title">{{ module.chart_title }}</h2>
-                        <div class="panel-subtitle">Demo view for {{ selected_hospital }}</div>
+                        <div class="panel-subtitle">No records loaded for {{ selected_hospital }}</div>
                         <div id="moduleChart" class="chart"></div>
                     </article>
                 </section>
@@ -1216,7 +1097,7 @@ TEMPLATE = """
                 <section class="chart-grid" style="grid-template-columns:1.2fr .8fr;">
                     <article class="panel">
                         <h2 class="panel-title">{{ module.title }} Worklist</h2>
-                        <div class="panel-subtitle">Representative records for client walkthrough</div>
+                        <div class="panel-subtitle">No records loaded yet</div>
                         <table class="module-table">
                             <thead>
                                 <tr>
@@ -1232,24 +1113,28 @@ TEMPLATE = """
                                     <td>{{ cell }}</td>
                                     {% endfor %}
                                 </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="{{ module.columns|length }}">No records available.</td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </article>
                     <article class="panel">
-                        <h2 class="panel-title">Client Demo Talking Points</h2>
+                        <h2 class="panel-title">Implementation Notes</h2>
                         <div class="module-insights">
                             <div class="insight-card">
                                 <div class="item-title">Unified hospital filter</div>
-                                <div class="item-detail">Owners can switch between all hospitals or a single hospital without changing modules.</div>
+                                <div class="item-detail">Owners will switch between all hospitals or a single hospital without changing modules.</div>
                             </div>
                             <div class="insight-card">
                                 <div class="item-title">Operational drill-down</div>
-                                <div class="item-detail">Each module can later connect to real workflows, approvals, reports and audit logs.</div>
+                                <div class="item-detail">Each module is ready to connect to real workflows, approvals, reports and audit logs.</div>
                             </div>
                             <div class="insight-card">
-                                <div class="item-title">Static demo data today</div>
-                                <div class="item-detail">The layout is ready for API/database integration when the actual UHMS backend is available.</div>
+                                <div class="item-title">Backend integration</div>
+                                <div class="item-detail">The layout is ready for API and database integration through the FastAPI backend.</div>
                             </div>
                         </div>
                     </article>
@@ -1307,6 +1192,8 @@ def parse_date(value: str | None, fallback: date) -> date:
 
 def scaled_department_data(selected_hospital: str) -> list[dict]:
     total = HOSPITAL_METRICS[selected_hospital]["revenue"]
+    if not department_revenue_df or HOSPITAL_METRICS["All Hospitals"]["revenue"] == 0:
+        return []
     scale = total / HOSPITAL_METRICS["All Hospitals"]["revenue"]
     return [
         {"Department": row["Department"], "Revenue": row["Revenue"] * scale}
@@ -1315,9 +1202,13 @@ def scaled_department_data(selected_hospital: str) -> list[dict]:
 
 
 def scaled_monthly_data(selected_hospital: str) -> list[dict]:
+    if not monthly_df:
+        return []
     if selected_hospital == "All Hospitals":
         return [dict(row) for row in monthly_df]
 
+    if HOSPITAL_METRICS["All Hospitals"]["revenue"] == 0:
+        return []
     scale = HOSPITAL_METRICS[selected_hospital]["revenue"] / HOSPITAL_METRICS["All Hospitals"]["revenue"]
     return [
         {
@@ -1330,9 +1221,13 @@ def scaled_monthly_data(selected_hospital: str) -> list[dict]:
 
 
 def scaled_staff_data(selected_hospital: str) -> list[dict]:
+    if not staff_df:
+        return []
     if selected_hospital == "All Hospitals":
         return [dict(row) for row in staff_df]
 
+    if HOSPITAL_METRICS["All Hospitals"]["staff"] == 0:
+        return []
     scale = HOSPITAL_METRICS[selected_hospital]["staff"] / HOSPITAL_METRICS["All Hospitals"]["staff"]
     return [
         {
@@ -1456,7 +1351,7 @@ def revenue_expense_chart(selected_hospital: str) -> go.Figure:
             marker={"size": 8},
             fill="tozeroy",
             fillcolor="rgba(18, 166, 166, 0.10)",
-            text=["" for _ in range(len(data) - 1)] + [currency_cr(revenue[-1])],
+            text=(["" for _ in range(len(data) - 1)] + [currency_cr(revenue[-1])]) if revenue else [],
             textposition="top center",
             hovertemplate="%{x}<br>Revenue: ₹%{y:.2f} Cr<extra></extra>",
         )
@@ -1471,7 +1366,7 @@ def revenue_expense_chart(selected_hospital: str) -> go.Figure:
             marker={"size": 8},
             fill="tozeroy",
             fillcolor="rgba(239, 68, 68, 0.08)",
-            text=["" for _ in range(len(data) - 1)] + [currency_cr(expenses[-1])],
+            text=(["" for _ in range(len(data) - 1)] + [currency_cr(expenses[-1])]) if expenses else [],
             textposition="bottom center",
             hovertemplate="%{x}<br>Expenses: ₹%{y:.2f} Cr<extra></extra>",
         )
@@ -1550,35 +1445,35 @@ def metric_cards(selected_hospital: str) -> list[dict]:
         {
             "title": "Total Revenue This Month",
             "value": currency_cr(metrics["revenue"]),
-            "foot": "<strong>+18.6%</strong> vs last month",
+            "foot": "<strong>No data</strong> loaded yet",
             "accent": "#1f6feb",
             "accent_bg": "rgba(31,111,235,0.13)",
         },
         {
             "title": "Active Patients",
             "value": f"{metrics['patients']:,}",
-            "foot": "<strong>+12.4%</strong> vs last month",
+            "foot": "<strong>No data</strong> loaded yet",
             "accent": "#12a864",
             "accent_bg": "rgba(18,168,100,0.12)",
         },
         {
             "title": "Bed Occupancy Rate",
             "value": f"{metrics['occupancy']:.1f}%",
-            "foot": "<strong>+5.3%</strong> vs last month",
+            "foot": "<strong>No data</strong> loaded yet",
             "accent": "#6d5dfc",
             "accent_bg": "rgba(109,93,252,0.12)",
         },
         {
             "title": "Emergency Admissions",
             "value": f"{metrics['emergency']:,}",
-            "foot": "<strong>+15.7%</strong> vs last month",
+            "foot": "<strong>No data</strong> loaded yet",
             "accent": "#ef4444",
             "accent_bg": "rgba(239,68,68,0.10)",
         },
         {
             "title": "Staff On Duty",
             "value": f"{metrics['staff']:,}",
-            "foot": "<strong>Live</strong> shift tracking",
+            "foot": "<strong>No data</strong> loaded yet",
             "accent": "#12a6a6",
             "accent_bg": "rgba(18,166,166,0.12)",
         },
@@ -1608,7 +1503,7 @@ def staff_payload(selected_hospital: str) -> tuple[list[dict], dict]:
     summary = {
         "total": f"{total:,}",
         "on_duty": f"{on_duty:,}",
-        "percent": f"{on_duty / total * 100:.1f}",
+        "percent": f"{on_duty / total * 100:.1f}" if total else "0.0",
     }
     return rows, summary
 
@@ -1645,7 +1540,7 @@ def dashboard() -> str:
     staff_rows, staff_summary = staff_payload(selected_hospital)
     page_heading = "Super Admin Dashboard" if current_page == "Dashboard" else f"{current_page} Module"
     page_subtitle = (
-        "Owner-level operational overview across Hospital A, Hospital B, and Hospital C"
+        "Owner-level operational overview. Connect real hospital data to populate this dashboard."
         if current_page == "Dashboard"
         else MODULE_DEMOS[current_page]["subtitle"]
     )

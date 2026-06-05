@@ -3,322 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UHMS Super Admin Dashboard</title>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <title>UHMS</title>
   <style>
-    :root {
-      --blue:#1f6feb; --teal:#12a6a6; --green:#12a864; --orange:#f59e0b;
-      --red:#ef4444; --ink:#0f1f3d; --muted:#66758f; --line:#dde7f3;
-    }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Segoe UI, Arial, sans-serif;
+      color: #0f1f3d;
+      background: #f6f9fd;
+    }
+    main {
+      max-width: 720px;
+      padding: 40px;
       background: #fff;
-      color: var(--ink);
-      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      border: 1px solid #dde7f3;
+      border-radius: 8px;
+      box-shadow: 0 18px 40px rgba(15, 31, 61, 0.08);
     }
-    .shell { display: grid; grid-template-columns: 274px minmax(0, 1fr); min-height: 100vh; }
-    .sidebar {
-      position: sticky; top: 0; height: 100vh; overflow-y: auto;
-      border-right: 1px solid #e8eef7; padding: 24px 18px;
-      background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+    h1 {
+      margin: 0 0 12px;
+      font-size: 32px;
     }
-    .brand { display: flex; gap: 13px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #edf2f7; margin-bottom: 18px; }
-    .logo {
-      width: 46px; height: 46px; border-radius: 8px;
-      background:
-        linear-gradient(135deg, #34c6e8 0 44%, transparent 45%),
-        linear-gradient(225deg, #2f80ed 0 44%, transparent 45%),
-        linear-gradient(315deg, #36d399 0 44%, transparent 45%),
-        linear-gradient(45deg, #6d5dfc 0 44%, transparent 45%);
-      box-shadow: 0 12px 22px rgba(31,111,235,.18);
-    }
-    .brand-title { font-size: 27px; font-weight: 850; line-height: 1; }
-    .brand-subtitle { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.25; font-weight: 650; }
-    .nav { display: grid; gap: 4px; }
-    .nav button {
-      border: 0; background: transparent; text-align: left; cursor: pointer;
-      display: flex; align-items: center; gap: 11px; padding: 11px 12px;
-      border-radius: 8px; color: #263956; font-size: 14px; font-weight: 750;
-    }
-    .nav button:hover { background: #eef5ff; color: var(--blue); }
-    .nav button.active { color: #fff; background: linear-gradient(135deg, #1f6feb, #2f80ed); box-shadow: 0 10px 18px rgba(31,111,235,.24); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #9ab0cf; }
-    .active .dot { background: #fff; }
-    .sidebar-card { margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 10px 28px rgba(15,31,61,.05); }
-    .item-title { font-size: 13px; font-weight: 850; color: var(--ink); }
-    .item-detail, .small { margin-top: 4px; font-size: 12px; color: var(--muted); font-weight: 650; }
-    .content { min-width: 0; background: linear-gradient(180deg, #fff 0%, #fbfdff 38%, #fff 100%); }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: end; gap: 20px;
-      padding: 24px; border-bottom: 1px solid #edf2f7; background: rgba(255,255,255,.94);
-      position: sticky; top: 0; z-index: 3; backdrop-filter: blur(12px);
-    }
-    h1 { margin: 0; font-size: 26px; line-height: 1.15; }
-    h2 { margin: 0; font-size: 17px; line-height: 1.2; }
-    .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 14px; font-weight: 650; }
-    .filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
-    label { display: block; margin-bottom: 6px; color: #344766; font-size: 12px; font-weight: 800; }
-    select, input[type=date] {
-      width: 180px; height: 42px; border: 1px solid #d8e4f2; border-radius: 8px;
-      background: #fff; color: var(--ink); padding: 0 12px; font: inherit; font-size: 13px; font-weight: 700;
-    }
-    .main { max-width: 1500px; margin: 0 auto; padding: 20px 24px 28px; }
-    .context { color: var(--muted); font-size: 13px; font-weight: 650; margin-bottom: 14px; }
-    .metric-grid { display: grid; grid-template-columns: repeat(6, minmax(160px, 1fr)); gap: 16px; margin-bottom: 18px; }
-    .card, .panel {
-      border: 1px solid var(--line); border-radius: 8px; background: #fff;
-      box-shadow: 0 12px 30px rgba(15,31,61,.07); overflow: hidden;
-    }
-    .card { position: relative; min-height: 126px; padding: 17px 16px; }
-    .card::after { content:""; position:absolute; inset:0; background:linear-gradient(135deg, var(--accent-bg), transparent 60%); pointer-events:none; }
-    .card > * { position: relative; z-index: 1; }
-    .metric-title { color: #1e3153; font-size: 13px; font-weight: 800; min-height: 30px; }
-    .metric-value { margin-top: 4px; font-size: 29px; font-weight: 850; line-height: 1.05; }
-    .metric-foot { margin-top: 12px; color: var(--muted); font-size: 12px; font-weight: 650; }
-    .metric-foot strong { color: var(--accent); }
-    .grid-3 { display: grid; grid-template-columns: 1.05fr 1.05fr 1.35fr; gap: 16px; margin-bottom: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-    .panel { padding: 17px; min-height: 100%; }
-    .panel.chart::before { content:""; display:block; height: 4px; margin: -17px -17px 13px; background: linear-gradient(90deg, #1f6feb, #12a6a6, #22c55e, #f59e0b); }
-    .panel-subtitle { margin: 6px 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; }
-    .plot { width: 100%; height: 315px; }
-    .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #edf2f7; }
-    .row:last-child { border-bottom: 0; }
-    .badge { border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: 850; min-width: 62px; text-align: center; }
-    .Critical { background: #ffe6e6; color: var(--red); }
-    .High, .Warning, .Low { background: #fff0db; color: #d97706; }
-    .progress { display: grid; grid-template-columns: 92px 1fr 72px; gap: 10px; align-items: center; margin: 15px 0; font-size: 12px; font-weight: 800; }
-    .track { height: 8px; border-radius: 8px; background: #e8eef5; overflow: hidden; }
-    .fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #12a864, #11b5a4); }
-    .module-hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr); gap: 16px; margin-bottom: 16px; }
-    .module-title { margin: 0; font-size: 28px; font-weight: 850; }
-    .module-metrics { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 14px; margin-top: 18px; }
-    .module-metric { border: 1px solid #e5edf7; border-radius: 8px; padding: 14px; background: linear-gradient(135deg, rgba(31,111,235,.08), #fff 70%); }
-    .architecture-flow { display: grid; gap: 12px; margin-top: 16px; }
-    .flow-band { border: 1px solid #dfe8f3; border-radius: 8px; padding: 14px; background: #f7fbff; text-align: center; font-weight: 850; color: #17345f; }
-    .flow-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-    .flow-node { border: 1px solid #e5edf7; border-radius: 8px; padding: 14px; background: #fff; box-shadow: 0 8px 20px rgba(15,31,61,.04); }
-    .flow-node strong { display: block; color: #0f1f3d; font-size: 13px; margin-bottom: 5px; }
-    .role-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .role-card { border: 1px solid #e5edf7; border-radius: 8px; padding: 15px; background: #fff; }
-    .role-card h3 { margin: 0 0 8px; font-size: 15px; }
-    .role-card ul { margin: 0; padding-left: 18px; color: #4c5f7a; font-size: 12px; line-height: 1.55; font-weight: 650; }
-    table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; font-size: 13px; }
-    th { color:#334765; background:#f4f8fd; text-align:left; padding:12px 14px; font-size:12px; font-weight:850; border-bottom:1px solid #dfe8f3; }
-    td { padding:13px 14px; border-bottom:1px solid #edf2f7; font-weight:700; color:#253754; }
-    tr:last-child td { border-bottom: 0; }
-    @media (max-width: 1280px) {
-      .metric-grid { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-      .grid-3, .grid-4, .module-hero, .module-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .flow-grid, .role-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 860px) {
-      .shell, .metric-grid, .grid-3, .grid-4, .module-hero, .module-metrics { grid-template-columns: 1fr; }
-      .flow-grid, .role-grid { grid-template-columns: 1fr; }
-      .sidebar { position: relative; height: auto; }
-      .topbar { position: relative; display: block; }
-      .filters { margin-top: 16px; justify-content: flex-start; }
-      select, input[type=date] { width: 100%; }
+    p {
+      margin: 0;
+      color: #66758f;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>
-          <div class="brand-title">UHMS</div>
-          <div class="brand-subtitle">Unified Hospital<br>Management System</div>
-        </div>
-      </div>
-      <nav class="nav" id="nav"></nav>
-      <div class="sidebar-card"><div class="item-title">Super Admin</div><div class="item-detail">superadmin@uhms.com</div></div>
-      <div class="sidebar-card"><div class="item-title">System Status</div><div class="item-detail" style="color:#12a864;font-weight:850;">All systems operational</div></div>
-      <div class="small" style="margin:18px 4px 0;">Netlify static demo. Dummy data only.</div>
-    </aside>
-    <main class="content">
-      <header class="topbar">
-        <div><h1 id="pageTitle">Super Admin Dashboard</h1><p class="subtitle" id="pageSubtitle">Owner-level operational overview across three hospitals</p></div>
-        <div class="filters">
-          <div><label for="hospital">Hospital</label><select id="hospital"></select></div>
-          <div><label for="start">Start date</label><input id="start" type="date" value="2026-05-01"></div>
-          <div><label for="end">End date</label><input id="end" type="date" value="2026-05-31"></div>
-        </div>
-      </header>
-      <section class="main">
-        <div class="context" id="context"></div>
-        <div id="view"></div>
-      </section>
-    </main>
-  </div>
-
-  <script>
-    const menu = ["Dashboard","Architecture","Patients","Doctors","Radiology","Pathology","Pharmacy","Billing","Insurance","Inventory","Staff Management","Analytics","Reports","Settings"];
-    const metrics = {
-      "All Hospitals": { revenue:12.62, patients:4562, occupancy:78.6, emergency:186, staff:1248, claims:234, claimsValue:2.45, ratio:18 },
-      "Hospital A": { revenue:5.21, patients:1824, occupancy:82.2, emergency:74, staff:512, claims:93, claimsValue:.98, ratio:17 },
-      "Hospital B": { revenue:4.35, patients:1575, occupancy:76.4, emergency:62, staff:421, claims:81, claimsValue:.86, ratio:18 },
-      "Hospital C": { revenue:3.06, patients:1163, occupancy:73.8, emergency:50, staff:315, claims:60, claimsValue:.61, ratio:19 }
-    };
-    const hospitalRevenue = [["Hospital A",5.21],["Hospital B",4.35],["Hospital C",3.06]];
-    const departments = [["Radiology",3.45],["Pathology",2.78],["Surgery",2.35],["Pharmacy",1.68],["ICU",1.25],["Cardiology",1.11]];
-    const monthly = [["Jun",6.35,3.82],["Jul",7.18,4.12],["Aug",8.06,4.48],["Sep",8.92,4.79],["Oct",9.34,5.03],["Nov",9.82,5.22],["Dec",10.25,5.47],["Jan",10.91,5.86],["Feb",11.38,6.12],["Mar",11.86,6.52],["Apr",12.21,7.06],["May",12.62,7.81]];
-    const alerts = [
-      ["Hospital A","Low on oxygen cylinders","Stock remaining: 12 units","Critical","5 min ago"],
-      ["Hospital B","ICU occupancy high","ICU occupancy: 95%","High","12 min ago"],
-      ["Hospital C","MRI machine maintenance scheduled","Scheduled maintenance at 2:00 PM","Warning","25 min ago"],
-      ["Hospital A","High emergency admissions","Admissions increased by 32%","High","35 min ago"]
-    ];
-    const inventory = [
-      ["Oxygen Cylinders","Hospital A","Critical","12 units remaining"],
-      ["Medicine: Inj. Meropenem","Hospital B","Low","8 units remaining"],
-      ["ICU Beds","Hospital C","Critical","2 beds available"],
-      ["Blood Units","All Hospitals","Low","A+ve: 15 | O-ve: 10"]
-    ];
-    const staff = [["Doctors",342,415],["Nurses",512,620],["Technicians",128,160],["Admin Staff",63,80]];
-    const modules = {
-      Patients:{accent:"#1f6feb",subtitle:"Registration, OPD, IPD, emergency, discharge and follow-up overview", chart:"Patient Flow by Service", categories:["OPD","IPD","Emergency","Follow-up","Discharge"], values:[198,68,20,142,87], metrics:[["New Registrations","286"],["Avg Wait Time","18 min"],["Critical Patients","34"],["Discharges","142"]], columns:["Patient ID","Name","Hospital","Type","Department","Status"], rows:[["UHMS-10231","Amit Rao","Hospital A","IPD","Cardiology","Admitted"],["UHMS-10232","Neha Sharma","Hospital B","OPD","Orthopedics","Waiting"],["UHMS-10233","Ravi Menon","Hospital C","Emergency","ICU","Critical"],["UHMS-10234","Priya Nair","Hospital A","OPD","Dermatology","Consulted"]]},
-      Doctors:{accent:"#12a864",subtitle:"Doctor availability, specialty coverage and consultation workload", chart:"Consultations by Specialty", categories:["Cardiology","Radiology","Surgery","Pediatrics","ICU"], values:[84,68,52,76,41], metrics:[["Total Doctors","415"],["On Duty","342"],["Avg Consults","22/day"],["Utilization","82%"]], columns:["Doctor","Specialty","Hospital","Queue","Availability","Rating"], rows:[["Dr. Meera Iyer","Cardiology","Hospital A","14","On Duty","4.8"],["Dr. Arjun Das","Radiology","Hospital B","9","In Procedure","4.7"],["Dr. Sara Khan","ICU","Hospital C","6","On Duty","4.9"],["Dr. Vikram Sen","Surgery","Hospital A","11","On Call","4.6"]]},
-      Radiology:{accent:"#2f9de0",subtitle:"Scan volumes, modality utilization, turnaround time and machine status", chart:"Radiology Volume by Modality", categories:["X-Ray","CT","MRI","USG","Mammography"], values:[420,172,96,238,54], metrics:[["Revenue","₹3.45 Cr"],["Scans Today","312"],["TAT","42 min"],["Pending Reports","28"]], columns:["Order ID","Modality","Hospital","Priority","Status","Radiologist"], rows:[["RAD-9001","MRI Brain","Hospital C","Routine","Scheduled","Dr. Arjun"],["RAD-9002","CT Chest","Hospital B","Urgent","Reporting","Dr. Reema"],["RAD-9003","X-Ray AP","Hospital A","STAT","Completed","Dr. Kunal"],["RAD-9004","USG Abdomen","Hospital B","Routine","In Scan","Dr. Shalini"]]},
-      Pathology:{accent:"#12a6a6",subtitle:"Lab orders, sample collection, report status and analyzer workload", chart:"Lab Tests by Category", categories:["Hematology","Biochemistry","Microbiology","Serology","Histopath"], values:[510,438,122,186,74], metrics:[["Revenue","₹2.78 Cr"],["Samples Today","1,330"],["Reports Ready","1,108"],["Pending","222"]], columns:["Lab ID","Test","Hospital","Sample","Status","TAT"], rows:[["LAB-7601","CBC","Hospital A","Blood","Ready","28 min"],["LAB-7602","LFT","Hospital B","Serum","Processing","42 min"],["LAB-7603","Culture","Hospital C","Urine","Incubation","24 hr"],["LAB-7604","CRP","Hospital A","Blood","Validated","35 min"]]},
-      Pharmacy:{accent:"#22c55e",subtitle:"Prescription fulfillment, stock alerts, sales and expiry tracking", chart:"Pharmacy Sales by Category", categories:["Antibiotics","Analgesics","Cardiac","Diabetes","Consumables"], values:[34,22,28,19,31], metrics:[["Revenue","₹1.68 Cr"],["Orders","1,942"],["Low Stock","18"],["Fill Rate","96%"]], columns:["Item","Hospital","Stock","Reorder Level","Status","Value"], rows:[["Inj. Meropenem","Hospital B","8","25","Low","₹62,400"],["Normal Saline","Hospital A","420","160","Healthy","₹38,200"],["Insulin Glargine","Hospital C","54","40","Healthy","₹74,600"],["Surgical Gloves","Hospital A","190","240","Reorder","₹21,900"]]},
-      Billing:{accent:"#f59e0b",subtitle:"Revenue collection, outstanding dues, refunds and package billing", chart:"Collections by Payment Mode", categories:["Cash","UPI","Card","Insurance","Corporate"], values:[1.42,2.26,1.84,4.1,3.0], metrics:[["Collected","₹12.62 Cr"],["Outstanding","₹1.04 Cr"],["Refunds","₹18.6 L"],["Invoices","3,846"]], columns:["Invoice","Patient","Hospital","Amount","Mode","Status"], rows:[["INV-2401","Amit Rao","Hospital A","₹84,300","Insurance","Submitted"],["INV-2402","Neha Sharma","Hospital B","₹6,200","UPI","Paid"],["INV-2403","Ravi Menon","Hospital C","₹2,18,900","Corporate","Part Paid"],["INV-2404","Priya Nair","Hospital A","₹12,400","Card","Paid"]]},
-      Insurance:{accent:"#6d5dfc",subtitle:"Claim submission, pre-auth, settlement and rejection monitoring", chart:"Insurance Claim Pipeline", categories:["Pre-auth","Submitted","Under Review","Approved","Rejected"], values:[82,234,118,174,21], metrics:[["Pending Claims","234"],["Claim Value","₹2.45 Cr"],["Approved","174"],["Rejection Rate","5.2%"]], columns:["Claim ID","Payer","Hospital","Value","Stage","Aging"], rows:[["CLM-6501","Star Health","Hospital A","₹1,24,000","Under Review","4 days"],["CLM-6502","HDFC Ergo","Hospital B","₹86,500","Pre-auth","1 day"],["CLM-6503","Corporate TPA","Hospital C","₹2,42,800","Approved","6 days"],["CLM-6504","ICICI Lombard","Hospital A","₹54,300","Submitted","2 days"]]},
-      Inventory:{accent:"#ef4444",subtitle:"Central stock visibility across medicine, oxygen, ICU beds and consumables", chart:"Critical Resource Availability", categories:["Oxygen","ICU Beds","Blood","Ventilators","Antibiotics"], values:[12,2,25,14,8], metrics:[["Critical Items","3"],["Low Items","2"],["Stock Value","₹4.8 Cr"],["PO Pending","37"]], columns:["Resource","Hospital","Available","Threshold","Status","Owner"], rows:[["Oxygen Cylinders","Hospital A","12","40","Critical","Stores"],["ICU Beds","Hospital C","2","8","Critical","Operations"],["Blood Units","All Hospitals","25","50","Low","Blood Bank"],["Ventilators","Hospital B","14","10","Healthy","Biomedical"]]},
-      "Staff Management":{accent:"#0f9f9f",subtitle:"Shift coverage, attendance, leave, roster and role utilization", chart:"Workforce by Role", categories:["Doctors","Nurses","Technicians","Admin","Support"], values:[415,620,160,80,210], metrics:[["Total Staff","1,485"],["On Duty","1,248"],["Leave","86"],["Attendance","91%"]], columns:["Employee","Role","Hospital","Shift","Attendance","Status"], rows:[["EMP-1401","Nurse","Hospital A","Morning","Present","On Duty"],["EMP-1402","Technician","Hospital B","Night","Present","Lab"],["EMP-1403","Doctor","Hospital C","Evening","Present","ICU"],["EMP-1404","Admin","Hospital A","Morning","Leave","Approved"]]},
-      Analytics:{accent:"#1f6feb",subtitle:"Executive analytics, trends, operational health and forecast signals", chart:"Operational KPI Score", categories:["Revenue","Occupancy","TAT","Claims","Inventory"], values:[92,79,84,76,68], metrics:[["KPI Score","84/100"],["Growth","+18.6%"],["Risk Alerts","6"],["Forecast","Positive"]], columns:["KPI","Current","Target","Variance","Owner","Status"], rows:[["Revenue","₹12.62 Cr","₹11.8 Cr","+7.0%","Finance","Ahead"],["Occupancy","78.6%","80%","-1.4%","Operations","Monitor"],["Report TAT","42 min","45 min","+3 min","Diagnostics","Good"],["Claims Aging","4.1 days","3.5 days","-0.6","Insurance","Watch"]]},
-      Reports:{accent:"#64748b",subtitle:"Daily MIS, financial reports, clinical reports and compliance exports", chart:"Reports Generated by Type", categories:["Finance","Clinical","Inventory","HR","Compliance"], values:[48,76,32,24,18], metrics:[["Reports Today","198"],["Scheduled","42"],["Downloaded","127"],["Pending","9"]], columns:["Report","Module","Hospital","Frequency","Format","Status"], rows:[["Daily Revenue MIS","Billing","All Hospitals","Daily","PDF","Ready"],["Doctor Utilization","Doctors","All Hospitals","Weekly","XLSX","Ready"],["Stock Exception","Inventory","Hospital A","Daily","PDF","Queued"],["Claims Aging","Insurance","Hospital B","Daily","XLSX","Ready"]]},
-      Settings:{accent:"#475569",subtitle:"Hospital configuration, access control, notifications and audit controls", chart:"Configuration Completion", categories:["Users","Roles","Hospitals","Alerts","Integrations"], values:[96,92,100,88,78], metrics:[["Hospitals","3"],["Active Users","286"],["Roles","18"],["Audit Logs","12.4k"]], columns:["Setting","Scope","Owner","Updated","Status","Action"], rows:[["Role Permissions","All Hospitals","Admin","Today","Active","Review"],["Notification Rules","Operations","Admin","Yesterday","Active","Edit"],["Billing Codes","Finance","CFO Office","2 days ago","Active","Review"],["Integration Keys","IT","System Admin","5 days ago","Secured","Rotate"]]}
-    };
-    let page = "Dashboard";
-    const hospitalSelect = document.getElementById("hospital");
-    ["All Hospitals","Hospital A","Hospital B","Hospital C"].forEach(h => hospitalSelect.add(new Option(h, h)));
-    hospitalSelect.onchange = render;
-    document.getElementById("start").onchange = render;
-    document.getElementById("end").onchange = render;
-    document.getElementById("nav").innerHTML = menu.map(item => `<button data-page="${item}"><span class="dot"></span><span>${item}</span></button>`).join("");
-    document.querySelectorAll(".nav button").forEach(btn => btn.onclick = () => { page = btn.dataset.page; render(); });
-    const inr = value => `₹ ${value.toFixed(2)} Cr`;
-    const layout = { height:315, margin:{l:12,r:12,t:24,b:12}, paper_bgcolor:"#fff", plot_bgcolor:"rgba(246,249,253,.55)", font:{color:"#0f1f3d", family:"Inter, Segoe UI, Arial", size:12}, hoverlabel:{bgcolor:"#0f1f3d", font:{color:"#fff"}} };
-    function metricCard(title, value, foot, accent, bg) { return `<article class="card" style="--accent:${accent};--accent-bg:${bg}"><div class="metric-title">${title}</div><div class="metric-value">${value}</div><div class="metric-foot">${foot}</div></article>`; }
-    function renderDashboard() {
-      const h = hospitalSelect.value, m = metrics[h];
-      const scale = m.revenue / metrics["All Hospitals"].revenue;
-      const revenueRows = h === "All Hospitals" ? hospitalRevenue : hospitalRevenue.filter(r => r[0] === h);
-      document.getElementById("view").innerHTML = `
-        <section class="metric-grid">
-          ${metricCard("Total Revenue This Month", inr(m.revenue), "<strong>+18.6%</strong> vs last month", "#1f6feb", "rgba(31,111,235,.13)")}
-          ${metricCard("Active Patients", m.patients.toLocaleString(), "<strong>+12.4%</strong> vs last month", "#12a864", "rgba(18,168,100,.12)")}
-          ${metricCard("Bed Occupancy Rate", `${m.occupancy}%`, "<strong>+5.3%</strong> vs last month", "#6d5dfc", "rgba(109,93,252,.12)")}
-          ${metricCard("Emergency Admissions", m.emergency.toLocaleString(), "<strong>+15.7%</strong> vs last month", "#ef4444", "rgba(239,68,68,.10)")}
-          ${metricCard("Staff On Duty", m.staff.toLocaleString(), "<strong>Live</strong> shift tracking", "#12a6a6", "rgba(18,166,166,.12)")}
-          ${metricCard("Pending Insurance Claims", m.claims.toLocaleString(), `₹ ${m.claimsValue.toFixed(2)} Cr`, "#f59e0b", "rgba(245,158,11,.13)")}
-        </section>
-        <section class="grid-3">
-          <article class="panel chart"><h2>Revenue by Hospital</h2><div class="panel-subtitle">Total Revenue: ${inr(m.revenue)}</div><div id="revHosp" class="plot"></div></article>
-          <article class="panel chart"><h2>Revenue by Department</h2><div class="panel-subtitle">Department contribution this month</div><div id="dept" class="plot"></div></article>
-          <article class="panel chart"><h2>Revenue vs Expenses Trend</h2><div class="panel-subtitle">Last 12 months</div><div id="trend" class="plot"></div></article>
-        </section>
-        <section class="grid-4">
-          <article class="panel chart"><h2>Doctor to Patient Ratio</h2><div class="panel-subtitle">Current ratio: 1:${m.ratio} | Recommended: 1:20</div><div id="ratio" class="plot"></div></article>
-          <article class="panel"><h2>Live Alerts</h2><div class="panel-subtitle">${alerts.length} operational alerts</div>${alerts.filter(a => h==="All Hospitals" || a[0]===h).map(a => `<div class="row"><div><div class="item-title">${a[0]}: ${a[1]}</div><div class="item-detail">${a[2]}</div></div><div><div class="badge ${a[3]}">${a[3]}</div><div class="item-detail">${a[4]}</div></div></div>`).join("")}</article>
-          <article class="panel"><h2>Staff On Duty</h2><div class="panel-subtitle">Live workforce availability</div>${staff.map(s => `<div class="progress"><div>${s[0]}</div><div class="track"><div class="fill" style="width:${s[1]/s[2]*100}%"></div></div><div>${s[1]} / ${s[2]}</div></div>`).join("")}</article>
-          <article class="panel"><h2>Inventory & Resource Alerts</h2><div class="panel-subtitle">Critical and low-stock items</div>${inventory.filter(i => h==="All Hospitals" || i[1]===h || i[1]==="All Hospitals").map(i => `<div class="row"><div><div class="item-title">${i[0]} (${i[1]})</div><div class="item-detail">${i[3]}</div></div><div class="badge ${i[2]}">${i[2]}</div></div>`).join("")}</article>
-        </section>
-        <section class="grid-4">
-          ${["Emergency Queue|46|#ef4444","Ambulance Tracking|24|#1f6feb","Patient Admissions Today|286|#12a864","Discharge Summary Today|142|#6d5dfc"].map(x => { const [t,v,c]=x.split("|"); return `<article class="panel"><h2>${t}</h2><div class="small">Total</div><div class="metric-value" style="color:${c}">${v}</div></article>`; }).join("")}
-        </section>`;
-      Plotly.newPlot("revHosp", [{type:"bar", x:revenueRows.map(r=>r[0]), y:revenueRows.map(r=>r[1]), text:revenueRows.map(r=>inr(r[1])), textposition:"outside", marker:{color:revenueRows.map(r=>r[1]), colorscale:[[0,"#6d5dfc"],[.5,"#12a6a6"],[1,"#1f6feb"]], line:{color:"#fff", width:2}}}], layout, {displayModeBar:false, responsive:true});
-      Plotly.newPlot("dept", [{type:"pie", labels:departments.map(d=>d[0]), values:departments.map(d=>d[1]*scale), hole:.55, textinfo:"percent", marker:{colors:["#1f6feb","#12a6a6","#22c55e","#2f9de0","#6d5dfc","#f6b34b"], line:{color:"#fff", width:2}}}], {...layout, showlegend:true}, {displayModeBar:false, responsive:true});
-      Plotly.newPlot("trend", [{type:"scatter", mode:"lines+markers", name:"Revenue (Cr)", x:monthly.map(m=>m[0]), y:monthly.map(m=>m[1]*scale), line:{color:"#0f9f9f", width:3}, fill:"tozeroy", fillcolor:"rgba(18,166,166,.10)"},{type:"scatter", mode:"lines+markers", name:"Expenses (Cr)", x:monthly.map(m=>m[0]), y:monthly.map(m=>m[2]*scale*.96), line:{color:"#ef4444", width:3}, fill:"tozeroy", fillcolor:"rgba(239,68,68,.08)"}], {...layout, legend:{orientation:"h", y:1.14, x:0}}, {displayModeBar:false, responsive:true});
-      Plotly.newPlot("ratio", [{type:"indicator", mode:"gauge+number", value:m.ratio, number:{prefix:"1:", font:{size:32,color:"#1f6feb"}}, gauge:{axis:{range:[0,40], tickvals:[0,10,20,30,40], ticktext:["1:0","1:10","1:20","1:30","1:40"]}, bar:{color:"#0f1f3d", thickness:.18}, steps:[{range:[0,20], color:"#14b8a6"},{range:[20,30], color:"#f59e0b"},{range:[30,40], color:"#ef4444"}]}}], {...layout, height:285}, {displayModeBar:false, responsive:true});
-    }
-    function renderModule() {
-      const mod = modules[page];
-      document.getElementById("view").innerHTML = `
-        <section class="module-hero">
-          <article class="panel"><h2 class="module-title">${page}</h2><p class="subtitle">${mod.subtitle}</p><div class="module-metrics">${mod.metrics.map(m => `<div class="module-metric"><div class="small">${m[0]}</div><div class="metric-value" style="color:${mod.accent}">${m[1]}</div></div>`).join("")}</div></article>
-          <article class="panel chart"><h2>${mod.chart}</h2><div class="panel-subtitle">Demo view for ${hospitalSelect.value}</div><div id="moduleChart" class="plot"></div></article>
-        </section>
-        <section class="grid-3" style="grid-template-columns:1.2fr .8fr;">
-          <article class="panel"><h2>${page} Worklist</h2><div class="panel-subtitle">Representative records for client walkthrough</div><table><thead><tr>${mod.columns.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${mod.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></article>
-          <article class="panel"><h2>Client Demo Talking Points</h2><div class="row"><div><div class="item-title">Unified hospital filter</div><div class="item-detail">Owners can switch between all hospitals or a single hospital without changing modules.</div></div></div><div class="row"><div><div class="item-title">Operational drill-down</div><div class="item-detail">Each module can later connect to real approvals, reports and audit logs.</div></div></div><div class="row"><div><div class="item-title">Static demo data today</div><div class="item-detail">This Netlify build is ready for API integration later.</div></div></div></article>
-        </section>`;
-      Plotly.newPlot("moduleChart", [{type:"bar", x:mod.categories, y:mod.values, text:mod.values, textposition:"outside", marker:{color:mod.values, colorscale:[[0,"#dbeafe"],[.45,mod.accent],[1,"#0f1f3d"]], line:{color:"#fff", width:2}}}], layout, {displayModeBar:false, responsive:true});
-    }
-    function renderArchitecture() {
-      document.getElementById("view").innerHTML = `
-        <section class="module-hero">
-          <article class="panel">
-            <h2 class="module-title">Integrated Hospital Management System Architecture</h2>
-            <p class="subtitle">One centralized digital platform for the owner to monitor operations, revenue, patients, doctors, departments, diagnostics, billing, pharmacy and patient engagement across all 3 hospitals.</p>
-            <div class="module-metrics">
-              <div class="module-metric"><div class="small">Hospitals</div><div class="metric-value" style="color:#1f6feb">3</div></div>
-              <div class="module-metric"><div class="small">Core Roles</div><div class="metric-value" style="color:#12a864">6</div></div>
-              <div class="module-metric"><div class="small">Business Modules</div><div class="metric-value" style="color:#f59e0b">8+</div></div>
-              <div class="module-metric"><div class="small">Platform Goal</div><div class="metric-value" style="color:#6d5dfc">Unified</div></div>
-            </div>
-          </article>
-          <article class="panel chart">
-            <h2>Pitch Statement</h2>
-            <div class="panel-subtitle">Client discussion summary</div>
-            <p class="subtitle">This platform helps the hospital owner manage all 3 hospitals from one dashboard. It improves financial visibility, department control, doctor productivity, patient experience and operational efficiency.</p>
-            <p class="subtitle">The patient mobile app reduces phone calls, improves appointment management, delivers reports digitally and increases patient satisfaction.</p>
-          </article>
-        </section>
-
-        <section class="grid-3" style="grid-template-columns:1.2fr .8fr;">
-          <article class="panel">
-            <h2>High-Level System Flow</h2>
-            <div class="panel-subtitle">Owner dashboard to hospital branches to central HMS platform</div>
-            <div class="architecture-flow">
-              <div class="flow-band">Owner / Super Admin Dashboard</div>
-              <div class="flow-grid">
-                <div class="flow-node"><strong>Hospital A</strong><span class="small">Admin portal, departments, OPD/IPD/ER, billing, pharmacy, pathology and radiology</span></div>
-                <div class="flow-node"><strong>Hospital B</strong><span class="small">Branch operations with hospital-wise tagging and group-level visibility</span></div>
-                <div class="flow-node"><strong>Hospital C</strong><span class="small">Diagnostics, staff, inventory, claims and patient engagement workflows</span></div>
-              </div>
-              <div class="flow-band">Central HMS Platform</div>
-              <div class="flow-grid">
-                <div class="flow-node"><strong>Web Portals</strong><span class="small">Super admin, hospital admin, doctor and staff portals</span></div>
-                <div class="flow-node"><strong>Patient Mobile App</strong><span class="small">Appointments, reports, prescriptions, payments and reminders</span></div>
-                <div class="flow-node"><strong>Central Database</strong><span class="small">Patient, billing, reports and appointment data</span></div>
-              </div>
-            </div>
-          </article>
-          <article class="panel">
-            <h2>Recommended Technology</h2>
-            <div class="row"><div><div class="item-title">Frontend</div><div class="item-detail">React or Angular for web dashboards. Flutter or React Native for mobile.</div></div></div>
-            <div class="row"><div><div class="item-title">Backend</div><div class="item-detail">API-based architecture with RBAC, secure patient data and multi-hospital separation.</div></div></div>
-            <div class="row"><div><div class="item-title">Database</div><div class="item-detail">Central PostgreSQL, MySQL or MS SQL Server with hospital-wise tagging.</div></div></div>
-            <div class="row"><div><div class="item-title">Cloud</div><div class="item-detail">AWS, Azure or Google Cloud with storage, notifications, backup and monitoring.</div></div></div>
-          </article>
-        </section>
-
-        <section class="panel">
-          <h2>User Roles & Demo Talking Points</h2>
-          <div class="panel-subtitle">Role-based access for owner, hospital teams, clinicians, diagnostics and patients</div>
-          <div class="role-grid">
-            <div class="role-card"><h3>Super Admin / Owner</h3><ul><li>Total revenue and hospital comparison</li><li>Department and doctor performance</li><li>Claims, collections and occupancy</li></ul></div>
-            <div class="role-card"><h3>Hospital Admin</h3><ul><li>Department and staff management</li><li>OPD/IPD workflow</li><li>Billing and daily operations reports</li></ul></div>
-            <div class="role-card"><h3>Doctors</h3><ul><li>Appointment list and patient queue</li><li>EMR, prescription and clinical notes</li><li>Lab/radiology requests and follow-ups</li></ul></div>
-            <div class="role-card"><h3>Nurses / Staff</h3><ul><li>Vitals and medication administration</li><li>Ward tasks and patient movement</li><li>Nursing notes and role-based access</li></ul></div>
-            <div class="role-card"><h3>Pathology / Radiology</h3><ul><li>Orders, samples/images and status</li><li>Report upload and doctor review</li><li>Patient notification after approval</li></ul></div>
-            <div class="role-card"><h3>Patient Mobile App</h3><ul><li>Appointments and QR check-in</li><li>Reports, prescriptions and payment</li><li>Medicine reminders and health wallet</li></ul></div>
-          </div>
-        </section>`;
-    }
-    function render() {
-      document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.page === page));
-      const h = hospitalSelect.value;
-      document.getElementById("pageTitle").textContent = page === "Dashboard" ? "Super Admin Dashboard" : page === "Architecture" ? "Architecture" : `${page} Module`;
-      document.getElementById("pageSubtitle").textContent = page === "Dashboard" ? "Owner-level operational overview across Hospital A, Hospital B, and Hospital C" : page === "Architecture" ? "Centralized HMS architecture for the client pitch" : modules[page].subtitle;
-      document.getElementById("context").textContent = `Viewing ${h} from ${document.getElementById("start").value} to ${document.getElementById("end").value}`;
-      if (page === "Dashboard") renderDashboard(); else if (page === "Architecture") renderArchitecture(); else renderModule();
-    }
-    render();
-  </script>
+  <main>
+    <h1>UHMS</h1>
+    <p>No sample records are bundled in this static build. Connect the FastAPI backend and PostgreSQL database to display hospital, patient, appointment, billing, pharmacy, and laboratory data.</p>
+  </main>
 </body>
 </html>

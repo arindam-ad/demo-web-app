@@ -18,7 +18,7 @@ The existing Flask dashboard remains available for client demos. The new `backen
 - Executive dashboard with KPI cards, revenue charts, department split, revenue vs expenses trend, doctor-to-patient gauge, alerts, staff, inventory, ambulance and admissions widgets.
 - Architecture view for the client pitch, covering roles, high-level system flow, core platform layers, mobile app and recommended technology stack.
 - Clickable sidebar modules for Patients, Doctors, Radiology, Pathology, Pharmacy, Billing, Insurance, Inventory, Staff Management, Analytics, Reports and Settings.
-- Dummy static data only. No database required.
+- No sample records are bundled in the dashboard. Real data should come from the backend/database.
 - Responsive enterprise healthcare SaaS UI.
 
 ## Local Setup
