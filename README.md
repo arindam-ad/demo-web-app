@@ -34,14 +34,16 @@ Open:
 http://127.0.0.1:8001
 ```
 
-The launch scripts prefer Python 3.12 when installed, then fall back to the
-installed Python 3.14 runtime. If PyCharm shows `No module named encodings`, it
-is usually running a broken virtual environment whose base Python was removed.
-Do not run this app with
+The launch scripts prefer the project `.venv`, then fall back to Python 3.12 or
+the installed Python 3.14 runtime. If PyCharm shows `No module named encodings`,
+it is usually running a broken virtual environment whose base Python was
+removed. Do not run this app with
 `C:\Users\arindam.d\PycharmProjects\app.py\.venv1\Scripts\python.exe`; that
 venv points to a missing Python 3.13 install. Use `launch_uhms_dashboard.bat` or
 set the PyCharm interpreter to
-`C:\Users\arindam.d\AppData\Local\Programs\Python\Python314\python.exe`.
+`D:\demo web app\.venv\Scripts\python.exe`. If the project environment itself
+gets corrupted, run `repair_python_env.bat` from this folder and then launch
+again.
 
 For longer local demos, use:
 
