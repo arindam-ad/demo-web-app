@@ -1,0 +1,13 @@
+.idea/
+__pycache__/
+*.py[cod]
+*.log
+*.zip
+
+.venv/
+venv/
+env/
+
+.env
+.env.*
+!.env.example

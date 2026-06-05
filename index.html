@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityDial Lite Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-badge">CD</div>
+        <div>
+          <p class="eyebrow">Lightweight Directory Showcase</p>
+          <h1>CityDial Lite</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="ghost-button" id="savedToggle" type="button">Saved <span id="savedCount">0</span></button>
+        <button class="primary-button" type="button" id="ctaLead">Get Best Deals</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="hero-kicker">Justdial-style search experience</p>
+          <h2>Find local services, compare providers, and collect leads in one clean demo.</h2>
+          <p class="hero-text">
+            This prototype highlights the core flows your customer expects: location-based discovery,
+            business listings, verified badges, reviews, offers, and a quick enquiry funnel.
+          </p>
+          <div class="hero-stats">
+            <div>
+              <strong>250+</strong>
+              <span>Mock businesses</span>
+            </div>
+            <div>
+              <strong>18</strong>
+              <span>Popular categories</span>
+            </div>
+            <div>
+              <strong>&lt; 1 sec</strong>
+              <span>Instant filtering</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-panel">
+          <form id="searchForm" class="search-form">
+            <label>
+              <span>What are you looking for?</span>
+              <input id="searchInput" type="text" placeholder="Restaurants, plumbers, dentists, hotels...">
+            </label>
+            <label>
+              <span>Location</span>
+              <select id="locationSelect">
+                <option value="">All areas</option>
+                <option value="Indiranagar">Indiranagar</option>
+                <option value="Koramangala">Koramangala</option>
+                <option value="HSR Layout">HSR Layout</option>
+                <option value="Whitefield">Whitefield</option>
+                <option value="Jayanagar">Jayanagar</option>
+                <option value="BTM Layout">BTM Layout</option>
+              </select>
+            </label>
+            <button class="primary-button search-submit" type="submit">Search Now</button>
+          </form>
+
+          <div class="quick-pills" id="quickPills">
+            <button type="button" data-query="Restaurants">Restaurants</button>
+            <button type="button" data-query="Hospitals">Hospitals</button>
+            <button type="button" data-query="Home Cleaning">Home Cleaning</button>
+            <button type="button" data-query="Packers and Movers">Packers and Movers</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="category-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Browse Categories</p>
+            <h3>Popular local searches</h3>
+          </div>
+          <p>Designed for a quick browse-first experience, just like a local discovery marketplace.</p>
+        </div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </section>
+
+      <section class="content-layout">
+        <aside class="filter-card">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Refine Results</p>
+              <h3>Smart filters</h3>
+            </div>
+          </div>
+
+          <div class="filter-stack">
+            <button class="filter-chip" type="button" data-filter="openNow">Open now</button>
+            <button class="filter-chip" type="button" data-filter="verified">Verified only</button>
+            <button class="filter-chip" type="button" data-filter="topRated">4.5+ rating</button>
+            <button class="filter-chip" type="button" data-filter="deals">Offers available</button>
+          </div>
+
+          <label class="sort-control">
+            <span>Sort by</span>
+            <select id="sortSelect">
+              <option value="recommended">Recommended</option>
+              <option value="rating">Top rating</option>
+              <option value="reviews">Most reviews</option>
+              <option value="deals">Best offers</option>
+            </select>
+          </label>
+
+          <div class="promo-card">
+            <p class="eyebrow">Lead Funnel</p>
+            <h4>Get matched with up to 3 businesses</h4>
+            <p>Capture contact requests with a short enquiry form for callback or quote collection.</p>
+            <button class="secondary-button" id="promoLead" type="button">Raise Enquiry</button>
+          </div>
+        </aside>
+
+        <section class="results-panel">
+          <div class="results-toolbar">
+            <div>
+              <p class="eyebrow">Results</p>
+              <h3 id="resultsTitle">Recommended businesses</h3>
+            </div>
+            <span class="results-count" id="resultsCount">0 listings</span>
+          </div>
+          <div class="results-list" id="resultsList"></div>
+        </section>
+
+        <aside class="detail-panel" id="detailPanel">
+          <div class="detail-placeholder">
+            <p class="eyebrow">Business Preview</p>
+            <h3>Select a listing</h3>
+            <p>Click any business card to show the richer details panel with services, hours, reviews, and actions.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="enquiry-drawer" id="enquiryDrawer" aria-hidden="true">
+    <div class="drawer-card">
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow">Lead Capture</p>
+          <h3>Request the best deal</h3>
+        </div>
+        <button class="icon-button" type="button" id="closeDrawer" aria-label="Close form">x</button>
+      </div>
+      <form id="enquiryForm" class="enquiry-form">
+        <label>
+          <span>Your name</span>
+          <input id="nameInput" type="text" placeholder="Enter full name" required>
+        </label>
+        <label>
+          <span>Phone number</span>
+          <input id="phoneInput" type="tel" placeholder="Enter mobile number" required>
+        </label>
+        <label>
+          <span>Requirement</span>
+          <textarea id="requirementInput" rows="4" placeholder="Tell us what service you need"></textarea>
+        </label>
+        <button class="primary-button" type="submit">Submit Enquiry</button>
+        <p class="submission-note" id="submissionNote"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
