@@ -3,10 +3,12 @@ __pycache__/
 *.py[cod]
 *.log
 *.zip
+*.db
 
 .venv/
 venv/
 env/
+.tmp/
 
 .env
 .env.*

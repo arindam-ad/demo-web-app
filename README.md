@@ -2,6 +2,17 @@
 
 Python + Flask + Plotly demo dashboard for a Unified Hospital Management System managing Hospital A, Hospital B, and Hospital C.
 
+## MVP Backend Added
+
+This repository now also includes an MVP-ready FastAPI/PostgreSQL scaffold for the real Healthcare Management Platform:
+
+- [backend README](backend/README.md)
+- [MVP architecture](docs/MVP_ARCHITECTURE.md)
+- [roadmap, team, CI/CD, and cost](docs/ROADMAP_TEAM_COST.md)
+- [Docker Compose deployment](docker-compose.yml)
+
+The existing Flask dashboard remains available for client demos. The new `backend/` folder is the implementation foundation for the FastAPI MVP.
+
 ## Features
 
 - Executive dashboard with KPI cards, revenue charts, department split, revenue vs expenses trend, doctor-to-patient gauge, alerts, staff, inventory, ambulance and admissions widgets.
